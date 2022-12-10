@@ -1,0 +1,121 @@
+﻿@startuml
+/'
++public
+-private
+#protected(自クラスと継承のみアクセス可能)
+'/
+Object StartUp 
+StartUp ---> Title: ゲームを起動
+
+Object QuitUnity
+
+
+
+ namespace Title{
+ 
+ class SelectPitcherLev{
+  + int levPitcher
+  -GameStart()
+  }
+  class QuitGame
+  
+  SelectPitcherLev ..|> MainGame.IPlayerLev
+ }
+ 
+ 
+ 
+package MainGame{
+package pitcher{
+'継承のもと
+class BasePitcher{
+ - int ballCount
+ -selectBall()
+ -ThrowBall()
+ -ThrowAnimation()
+ }
+class 1LevPitcher{
+--球種--
+ *ストレート
+ }
+ 
+ class 2LevPitcher{
+ --球種--
+  *ストレート
+  *チェンジアップ
+ }
+ 
+ class 3LevPitcher{
+ --球種--
+ *ストレート
+ *チェンジアップ
+ *スライダー
+ *シュート
+ *消える魔球
+ }
+ BasePitcher<|--1LevPitcher
+ BasePitcher<|--2LevPitcher
+ BasePitcher<|--3LevPitcher
+ BasePitcher -->MainGame.UIText:球数を表示
+ BasePitcher -* MainGame.ball:Instantiate
+ note "ballCountを1減らす" as Note1
+ MainGame.IReduceBallCount --> Note1
+ note "球数が-1になったら" as Note2
+ Note2 --> Result
+ Note1 ..> Note2
+ note "球数が0より大きいなら" as Note3
+ Note1 ..> Note3
+ Note3 -- BasePitcher
+ }
+ ball --* MainGame.Field:打ったボールが地面についたら
+ MainGame.Field ..|> MainGame.IReduceBallCount
+
+ 
+package batter{
+class SwingBat{
+ +float const swingPower
+}
+class BatterMove{
+- float moveSpeed 
+}
+class BatPower{
+- float centerDistance
+- OnTriggerEnter()
+}
+BatPower <--> MainGame.ball
+top to bottom direction
+SwingBat-[hidden]-BatterMove
+BatterMove-[hidden]-BatPower
+}
+
+interface IReduceBallCount{
+}
+class UIText{
+ -remainBallCount
+ -UIManager()
+ }
+interface IPlayerLev
+
+ object ball{
+ }
+ object Field{
+ }
+
+IPlayerLev ..|> pitcher
+
+}
+
+
+
+package Result{
+ 
+  class BackTitle{}
+  class CountHomeRun{
+  -float homeRun
+  +GameObject CountUIText
+  }
+  BackTitle --> Title :タイトルに戻る
+}
+ 
+ QuitUnity <--- Result.QuitGame :QuitApplication
+ QuitUnity <-- Title.QuitGame :QuitApplication
+@enduml
